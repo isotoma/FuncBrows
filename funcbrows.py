@@ -11,7 +11,7 @@ class FuncBrows(object):
         
         if browser == 'testbrowser':
             from zc.testbrowser.browser import Browser as zc_browser
-            self.browser = Browser()
+            self.browser = zc_browser()
             self.browser.base = base_url
             
         else:            
@@ -20,7 +20,7 @@ class FuncBrows(object):
             except ImportError:
                 print "Error import selenium, proceeding with zc.testbrowser"
                 from zc.testbrowser.browser import Browser as zc_browser
-                self.browser = Browser()
+                self.browser = zc_browser()
                 self.browser.base = base_url
                 return
             
@@ -28,7 +28,7 @@ class FuncBrows(object):
             port = kwargs.get('port', None)
 
             if port and host:
-                self.browser = selenium.selenium("192.168.90.130", 4444, "IE6", "http://192.168.90.1:8080")
+                self.browser = selenium.selenium(host, port, browser, base_url)
             else:
                 if not port:
                     raise ValueError("Port not specified for selenium")

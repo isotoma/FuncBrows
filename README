@@ -1,2 +1,6 @@
 A wrapper around various functional/system browser testing modules, mainly selenium and zc.testbrowser.
 Intended to allow for the selection of desired test mechanism, but running the same test code in all
+
+Currently supported:
+	selenium v1
+	zc.testbrowser

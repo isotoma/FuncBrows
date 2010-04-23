@@ -3,8 +3,27 @@
 class FuncBrows(object):
     """An abstraction layer over various browser test tools"""
     
+    # browser connection details
     browser = None
     mode = None
+    
+    # data variables
+    form_name = None
+    timeout_milliseconds = 60000
+    
+    def _testbrowser_form(self, form_name):
+        """ Attempted fix for bad markup and forms not looking up correctly """
+        try:
+            f = self.browser.getForm(form_name)
+            return f
+        except LookupError:
+            forms = self.browser.mech_browser.forms()
+            for f in forms:
+                if f.name == form_name:
+                    from zc.testbrowser.browser import Form
+                    zc_form = Form(self.browser, f)
+                    return zc_form
+            raise
     
     def __init__(self, browser = None, base_url = None, **kwargs):
         """ Create the correct instance """
@@ -16,8 +35,11 @@ class FuncBrows(object):
             self.browser = zc_browser()
             self.browser.base = base_url
             self.mode = "testbrowser"
+            self.browser.mech_browser.set_handle_robots(False)
+            self.browser.mech_browser.addheaders = [('User-agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11')]
             
-        else:            
+        else:
+            # if we can't import selenium, fall over to testbrowser anyway
             try:
                 import selenium
             except ImportError:
@@ -57,7 +79,7 @@ class FuncBrows(object):
         elif self.mode == "selenium":
             self.browser.open(url)
         else:
-            raise ValueError("Open is not supported by this browser mode")
+            raise NotImplementedError("Open is not supported by this browser mode")
         
         
     @property
@@ -68,4 +90,31 @@ class FuncBrows(object):
         elif self.mode == "selenium":
             return self.browser.get_title()
         else:
-            raise ValueError("Page Title is not supported by this browser mode")
+            raise NotImplementedError("Page Title is not supported by this browser mode")
+        
+        
+    def set_form_text_field(self, field_name, field_value):
+        """ Set a text field in the prespecified form to a value """
+        if self.form_name == None:
+            raise ValueError("Form name not set")
+        
+        if self.mode == "testbrowser":
+            form = self._testbrowser_form(self.form_name)
+            form.getControl(name = field_name).value = field_value
+        elif self.mode == "selenium":
+            self.browser.type(field_name, field_value)
+        else:
+            raise NotImplementedError("Setting a text field is not supported by this browser mode")
+        
+    def submit_form(self):
+        """ Submit the prespecified form """
+        
+        if self.mode == "testbrowser":
+            form = self._testbrowser_form(self.form_name)
+            form.submit()
+            
+        elif self.mode == "selenium":
+            self.browser.submit(self.form_name)
+            self.browser.wait_for_page_to_load(self.timeout_milliseconds)
+        else:
+            raise NotImplemented("Submitting a form is not supported by this browser mode")

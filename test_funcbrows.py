@@ -8,7 +8,7 @@ class FuncTests(unittest.TestCase):
         f = FuncBrows('testbrowser', 'http://www.google.com')
         
     def test_creation_selenium(self):
-        f = FuncBrows('IE6', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f = FuncBrows('IE7', 'http://www.google.com', host = '192.168.90.130', port = 4444)
         
         
     def test_google_testbrowser(self):
@@ -18,6 +18,31 @@ class FuncTests(unittest.TestCase):
         
         
     def test_google_selenium(self):
-        f = FuncBrows('IE6', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f = FuncBrows('IE7', 'http://www.google.com', host = '192.168.90.130', port = 4444)
         f.open('/')
         self.assertTrue('Google' in f.page_title)
+        
+    def test_google_query_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://www.google.com')
+        f.open('/')
+        self.assertTrue('Google' in f.page_title)
+        f.form_name = 'f'
+        f.set_form_text_field('q', 'test')
+        f.submit_form()
+        self.assertTrue('test' in f.page_title)
+        
+    def test_google_query_selenium(self):
+        f = FuncBrows('IE7', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f.open('/')
+        self.assertTrue('Google' in f.page_title)
+        f.form_name = 'f'
+        f.set_form_text_field('q', 'test')
+        f.submit_form()
+        self.assertTrue('test' in f.page_title)
+        
+    def test_form_fails_correctly(self):
+        """ Check that we can't fill in a form without setting the form name that we want to fill """
+        f = FuncBrows('IE7', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f.open('/')
+        self.assertTrue('Google' in f.page_title)
+        self.assertRaises(ValueError, f.set_form_text_field,'q', 'test')

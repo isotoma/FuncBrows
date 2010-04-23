@@ -8,7 +8,7 @@ class FuncTests(unittest.TestCase):
         f = FuncBrows('testbrowser', 'http://www.google.com')
         
     def test_creation_selenium(self):
-        f = FuncBrows('*mock', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f = FuncBrows('IE6', 'http://www.google.com', host = '192.168.90.130', port = 4444)
         
         
     def test_google_testbrowser(self):

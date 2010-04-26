@@ -55,6 +55,7 @@ class FuncBrows(object):
             if port and host:
                 self.browser = selenium.selenium(host, port, browser, base_url)
                 self.browser.start()
+                self.browser.window_maximize()
                 self.mode = "selenium"
             else:
                 if not port:

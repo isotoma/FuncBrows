@@ -6,10 +6,10 @@ import time
 class FuncTests(unittest.TestCase):
     
     def test_creation_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://www.google.com')
+        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
         
     def test_creation_selenium(self):
-        f = FuncBrows('*firefox3', 'http://www.google.com', host = '192.168.90.130', port = 4444)
+        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
         
         
     def test_google_testbrowser(self):
@@ -47,3 +47,19 @@ class FuncTests(unittest.TestCase):
         f.open('9.10/')
         self.assertTrue('Ubuntu' in f.page_title)
         self.assertRaises(ValueError, f.set_form_text_field,'q', 'test')
+        
+    def test_click_link_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
+        f.open('9.10/')
+        self.assertTrue('Ubuntu' in f.page_title)
+        
+        f.click(url = 'http://help.ubuntu.com/')
+        self.assertTrue('Documentation' in f.page_title)
+        
+    def test_click_link_selenium(self):
+        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
+        f.open('9.10/')
+        self.assertTrue('Ubuntu' in f.page_title)
+        
+        f.click(url = 'http://help.ubuntu.com/')
+        self.assertTrue('Documentation' in f.page_title)

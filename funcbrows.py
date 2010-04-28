@@ -120,12 +120,16 @@ class FuncBrows(object):
         else:
             raise NotImplemented("Submitting a form is not supported by this browser mode")
         
-    def click(self, url = None):
+    def click(self, url = None, text = None):
         """ Click on an element """
         
         if self.mode == "testbrowser":
             if url:
                 link = self.browser.getLink(url = url)
+                link.click()
+                return
+            if text:
+                link = self.browser.getLink(text = text)
                 link.click()
                 return
         elif self.mode == "selenium":
@@ -135,5 +139,8 @@ class FuncBrows(object):
                 self.browser.click('xpath=//a[@href="' + url +'"]')
                 self.browser.wait_for_page_to_load(self.timeout_milliseconds)
                 return
+            if text:
+                self.browser.click('link=' + text)
+                self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:
             raise NotImplemented("Click is not supported by this browser mode")

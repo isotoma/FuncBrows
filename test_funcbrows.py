@@ -1,81 +1,134 @@
-import unittest
-
 from funcbrows import FuncBrows
 import time
 
+from twisted.trial import unittest
+from twisted.internet import reactor, threads, defer
+from twisted.web import static, server
+from twisted.web.resource import Resource
+
+import threading
+
+class SimpleTestPage(Resource):
+    
+    def getChild(self, name, request):
+        return self
+    
+    def render_GET(self, request):
+        return open('../test.html', 'r').read()
+    
+    def render_POST(self, request):
+        header = """<html><head><title>Results</title></head><body>"""       
+        footer = """</body></html>"""
+        
+        content = ""
+        if request.args.get('q', None):
+            content += "<p>" + request.args.get('q')[0] + "</p>"
+            
+        return header + content + footer
+    
+    
+    
+def run_in_thread(callback):
+    def _(*args):
+        return threads.deferToThread(callback, *args)
+    return _
+    
 class FuncTests(unittest.TestCase):
     
+    
+   
+    def setUp(self):
+        site = server.Site(SimpleTestPage())
+        self.port = reactor.listenTCP(0, site)
+        self.portno = self.port.getHost().port
+        
+    
+    @run_in_thread
     def test_creation_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
-        
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+    
+    @run_in_thread
     def test_creation_selenium(self):
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
         
+    @run_in_thread
+    def test_page_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+
         
-    def test_google_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
-        
-        
+    @run_in_thread  
     def test_google_selenium(self):
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue('TestPage' in f.page_title)
         
-    def test_google_query_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
-        f.form_name = 'cse-search-box'
+    @run_in_thread
+    def test_page_query_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
         f.set_form_text_field('q', 'test')
         f.submit_form()
-        self.assertTrue('test' in f.page_title)
-        
-    def test_google_query_selenium(self):
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
-        f.form_name = 'cse-search-box'
+        self.assertTrue('test' in f.page_contents)
+    
+    @run_in_thread
+    def test_page_query_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue('TestPage' in f.page_title)
+        f.form_name = 'test-form'
         f.set_form_text_field('q', 'test')
         f.submit_form()
-        self.assertTrue('test' in f.page_title)
+        self.assertTrue('test' in f.page_contents)
         
+    @run_in_thread
     def test_form_fails_correctly(self):
         """ Check that we can't fill in a form without setting the form name that we want to fill """
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
         self.assertRaises(ValueError, f.set_form_text_field,'q', 'test')
         
-    def test_click_link_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
+    @run_in_thread
+    def test_click_link_by_url_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
         
-        f.click(url = 'http://help.ubuntu.com/')
-        self.assertTrue('Documentation' in f.page_title)
+        f.click(url = 'http://www.google.com')
+        self.assertTrue('Google' in f.page_title)
         
+    @run_in_thread
+    def test_click_link_by_text_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        
+        f.click(text = 'Google')
+        self.assertTrue('Google' in f.page_title)
+        
+    @run_in_thread    
     def test_click_link_selenium(self):
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
         
-        f.click(url = 'http://help.ubuntu.com/')
-        self.assertTrue('Documentation' in f.page_title)
+        f.click(url = 'http://www.google.com')
+        self.assertTrue('Google' in f.page_title)
         
-    def test_click_link_text_testbrowser(self):
-        f = FuncBrows('testbrowser', 'http://start.ubuntu.com/')
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
         
-        f.click(text = 'Ubuntu help')
-        self.assertTrue('Documentation' in f.page_title)
-        
+    @run_in_thread    
     def test_click_link_text_selenium(self):
-        f = FuncBrows('*firefox3', 'http://start.ubuntu.com/', host = '192.168.90.130', port = 4444)
-        f.open('9.10/')
-        self.assertTrue('Ubuntu' in f.page_title)
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
         
-        f.click(text = 'Ubuntu help')
-        self.assertTrue('Documentation' in f.page_title)
+        f.click(text = 'Google')
+        self.assertTrue('Google' in f.page_title)
+        
+        
+    def tearDown(self):
+        self.port.stopListening()

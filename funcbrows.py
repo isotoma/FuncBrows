@@ -93,6 +93,16 @@ class FuncBrows(object):
         else:
             raise NotImplementedError("Page Title is not supported by this browser mode")
         
+    @property
+    def page_contents(self):
+        """ Get the contents of the current page """
+        if self.mode == "testbrowser":
+            return self.browser.contents
+        if self.mode == "selenium":
+            return self.browser.get_html_source()
+        else:
+            raise NotImplementedError("Page Contents is not supported by this browser mode")
+        
         
     def set_form_text_field(self, field_name, field_value):
         """ Set a text field in the prespecified form to a value """
@@ -106,6 +116,37 @@ class FuncBrows(object):
             self.browser.type(field_name, field_value)
         else:
             raise NotImplementedError("Setting a text field is not supported by this browser mode")
+        
+    def set_form_select_option(self, field_name, field_value):
+        """ Set the selected value for a select field """
+        if self.form_name == None:
+            raise ValueError("Form name not set")
+        
+        if self.mode == "testbrowser":
+            form = self._testbrowser_form(self.form_name)
+            form.getControl(name = 'field_name').value = [field_value]
+            return
+        elif self.mode == "selenium":
+            self.browser.select(field_name, field_value)
+        else:
+            raise NotImplementedError("Setting a select field is not supported by this browser mode")
+        
+    def get_form_select_option(self, field_name):
+        """ Get the selected value for a select field """
+        if self.form_name == None:
+            raise ValueError("Form name not set")
+        
+        if self.mode == "testbrowser":
+            form = self._testbrowser_form(self.form_name)
+            value = form.getControl(name = 'field_name').value
+            if len(value) > 0:
+                return value[0]
+            else:
+                return value
+        elif self.mode == "selenium":
+            self.browser.get_selected_value(field_name)
+        else:
+            raise NotImplementedError("Getting a select field value is not supported by this browser mode")
         
     def submit_form(self):
         """ Submit the prespecified form """

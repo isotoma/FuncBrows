@@ -124,10 +124,10 @@ class FuncBrows(object):
         
         if self.mode == "testbrowser":
             form = self._testbrowser_form(self.form_name)
-            form.getControl(name = 'field_name').value = [field_value]
+            form.getControl(name = field_name).value = [field_value]
             return
         elif self.mode == "selenium":
-            self.browser.select(field_name, field_value)
+            self.browser.select(field_name, 'value=' +field_value)
         else:
             raise NotImplementedError("Setting a select field is not supported by this browser mode")
         
@@ -138,13 +138,13 @@ class FuncBrows(object):
         
         if self.mode == "testbrowser":
             form = self._testbrowser_form(self.form_name)
-            value = form.getControl(name = 'field_name').value
+            value = form.getControl(name = field_name).value
             if len(value) > 0:
                 return value[0]
             else:
                 return value
         elif self.mode == "selenium":
-            self.browser.get_selected_value(field_name)
+            return self.browser.get_selected_value(field_name)
         else:
             raise NotImplementedError("Getting a select field value is not supported by this browser mode")
         

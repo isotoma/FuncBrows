@@ -24,6 +24,9 @@ class SimpleTestPage(Resource):
         if request.args.get('q', None):
             content += "<p>" + request.args.get('q')[0] + "</p>"
             
+        if request.args.get('select-field', None):
+            content += "<p>" + str(request.args.get('select-field')) + "</p>"
+            
         return header + content + footer
     
     
@@ -128,6 +131,42 @@ class FuncTests(unittest.TestCase):
         
         f.click(text = 'Google')
         self.assertTrue('Google' in f.page_title)
+        
+    @run_in_thread
+    def test_get_select_field_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        self.assertTrue('1' in f.get_form_select_option('select-field'))
+        
+    @run_in_thread
+    def test_get_select_field_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        self.assertTrue('1' in f.get_form_select_option('select-field'))
+        self.assertFalse('test' in f.get_form_select_option('select-field'))
+        
+        
+    @run_in_thread
+    def test_submit_field_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_form_select_option('select-field', '2')
+        self.assertTrue('test-2' in f.page_contents)
+        
+    @run_in_thread
+    def test_submit_field_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_form_select_option('select-field', '2')
+        self.assertTrue('test-2' in f.page_contents)
         
         
     def tearDown(self):

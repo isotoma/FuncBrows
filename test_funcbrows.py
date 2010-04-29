@@ -59,7 +59,7 @@ class FuncTests(unittest.TestCase):
 
         
     @run_in_thread  
-    def test_google_selenium(self):
+    def test_page_selenium(self):
         f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
         f.open('/')
         self.assertTrue('TestPage' in f.page_title)
@@ -111,7 +111,7 @@ class FuncTests(unittest.TestCase):
         self.assertTrue('Google' in f.page_title)
         
     @run_in_thread    
-    def test_click_link_selenium(self):
+    def test_click_link_by_url_selenium(self):
         f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
         f.open('/')
         self.assertTrue("TestPage" in f.page_title)
@@ -121,7 +121,7 @@ class FuncTests(unittest.TestCase):
         
         
     @run_in_thread    
-    def test_click_link_text_selenium(self):
+    def test_click_link_by_text_selenium(self):
         f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
         f.open('/')
         self.assertTrue("TestPage" in f.page_title)

@@ -27,6 +27,9 @@ class SimpleTestPage(Resource):
         if request.args.get('select-field', None):
             content += "<p>" + str(request.args.get('select-field')) + "</p>"
             
+        if request.args.get('check-box', None):
+            content += "<p>" + 'checked' + "</p>"
+            
         return header + content + footer
     
     
@@ -168,6 +171,26 @@ class FuncTests(unittest.TestCase):
         f.set_form_select_option('select-field', '2')
         self.assertTrue('test-2' in f.page_contents)
         
+        
+    @run_in_thread
+    def test_set_checkbox_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_check_box('check-box', True)
+        f.submit_form()
+        self.assertTrue('checked' in f.page_contents)
+        
+    @run_in_thread
+    def test_set_checkbox_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_check_box('check-box', True)
+        f.submit_form()
+        self.assertTrue('checked' in f.page_contents)
         
     def tearDown(self):
         self.port.stopListening()

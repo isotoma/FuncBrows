@@ -148,6 +148,21 @@ class FuncBrows(object):
         else:
             raise NotImplementedError("Getting a select field value is not supported by this browser mode")
         
+    def set_check_box(self, field_name, value):
+        """ Set at checkbox to the given value """
+        if self.form_name == None:
+            raise ValueError("Form name not set")
+        
+        if self.mode == "testbrowser":
+            self.browser.getControl(name = field_name).controls[0].selected = value
+        elif self.mode == "selenium":
+            if value == True:
+                self.browser.check(field_name)
+            else:
+                self.browser.unceck(field_name)
+        else:
+            raise NotImplementedError("Setting a checkbox is not supported by this browser mode")
+        
     def submit_form(self):
         """ Submit the prespecified form """
         

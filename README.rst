@@ -49,4 +49,28 @@ Form Usage
 
 FuncBrows requires the name of the form to work on, before anything can be modified in a particular form. Failure to set this will result in a ValueError. This prevents ambiguous form controls. There is however a wart where zc.testbrowser is concerned, and forms without an id on the page. See the note below for how to workaround this.
 
+Set the value of a text box on a form::
+	f = FuncBrows('testbrowser', 'http://localhost:80')
+        f.open('/')
+        f.form_name = 'test-form'
+        f.set_form_text_field('q', 'test')
+        f.submit_form()
 
+Page Content
+~~~~~~~~~~~~
+
+Currently there are only three available methods for getting meta-data and data from the page that is currently loaded:
+
+location
+	Property for the current location of the page (the URL)
+page_title
+	Property for the title of the current page
+page_content
+	The HTML content of the page
+
+Warts
+~~~~~
+
+Unfortunately, a completely clean abstraction isn't quite possible, so there are a few places where special care is needed.
+1. Selenium currently struggles with AJAX loaded pages as they don't fire a page load event. An attempt has been made to get round this, you can pass 'internal=True' into the click() method. This will set Selenium to not expect a page load, and to carry straight on.
+2. Forms without an id or name can trip up zc.testbrowser. A workaround for this has been implemented, but is not entirely satisfactory. If you set the form_name = '*', it will use the first form on the page.

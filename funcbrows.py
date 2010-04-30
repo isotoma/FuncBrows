@@ -13,6 +13,14 @@ class FuncBrows(object):
     
     def _testbrowser_form(self, form_name):
         """ Attempted fix for bad markup and forms not looking up correctly """
+        
+
+        if form_name == "*":
+            f = self.browser.getForm(index=0)
+            return f
+                
+        
+        
         try:
             f = self.browser.getForm(form_name)
             return f
@@ -132,6 +140,20 @@ class FuncBrows(object):
         else:
             raise NotImplementedError("Setting a text field is not supported by this browser mode")
         
+    def get_form_text_field(self, field_name):
+        """ Get the current value of a text field """
+        if self.form_name == None:
+            raise ValueError("Form name not set")
+        
+        if self.mode == "testbrowser":
+            form = self._testbrowser_form(self.form_name)
+            return form.getControl(name = field_name).value
+        elif self.mode == "selenium":
+            return self.browser.get_value('identifier=' + field_name)
+        else:
+            raise NotImplementedError("Getting the value of a text field is not supported by this browser mode")
+        
+        
     def set_form_select_option(self, field_name, field_value):
         """ Set the selected value for a select field """
         if self.form_name == None:
@@ -205,7 +227,15 @@ class FuncBrows(object):
                 link.click()
                 return
             if identifier:
-                raise NotImplementedError("Not implemented yet")
+                try:
+                    link = self.browser.getLink(id = identifier)
+                    link.click()
+                except:
+                    # we need to account for names
+                    # so if the id doesn't work, try grabbing the control by name
+                    self.browser.getControl(name = identifier).click()
+                    
+                return
         elif self.mode == "selenium":
             if url:
                 # selenium doesn't have the ability to natively click a link by url

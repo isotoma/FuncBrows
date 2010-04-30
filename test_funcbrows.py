@@ -224,5 +224,26 @@ class FuncTests(unittest.TestCase):
         self.assertTrue("TestPage" in f.page_title)
         self.assertTrue("localhost" in f.location)
         
+        
+    @run_in_thread
+    def test_get_text_field_value_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_form_text_field('q', 'random')
+        value = f.get_form_text_field('q')
+        self.assertTrue('random' == value)
+        
+    @run_in_thread
+    def test_get_text_field_value_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        f.form_name = 'test-form'
+        f.set_form_text_field('q', 'random')
+        value = f.get_form_text_field('q')
+        self.assertTrue('random' == value)
+        
     def tearDown(self):
         self.port.stopListening()

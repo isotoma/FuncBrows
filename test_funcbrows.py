@@ -116,6 +116,15 @@ class FuncTests(unittest.TestCase):
         f.click(text = 'Google')
         self.assertTrue('Google' in f.page_title)
         
+    @run_in_thread
+    def test_click_link_by_identifier_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        
+        f.click(identifier = "google-link")
+        self.assertTrue('Google' in f.page_title)
+        
     @run_in_thread    
     def test_click_link_by_url_selenium(self):
         f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
@@ -133,6 +142,15 @@ class FuncTests(unittest.TestCase):
         self.assertTrue("TestPage" in f.page_title)
         
         f.click(text = 'Google')
+        self.assertTrue('Google' in f.page_title)
+        
+    @run_in_thread    
+    def test_click_link_by_identifier_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        
+        f.click(identifier = "google-link")
         self.assertTrue('Google' in f.page_title)
         
     @run_in_thread
@@ -191,6 +209,20 @@ class FuncTests(unittest.TestCase):
         f.set_check_box('check-box', True)
         f.submit_form()
         self.assertTrue('checked' in f.page_contents)
+        
+    @run_in_thread
+    def test_location_testbrowser(self):
+        f = FuncBrows('testbrowser', 'http://localhost:%s' % self.portno)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        self.assertTrue("localhost" in f.location)
+        
+    @run_in_thread
+    def test_location_selenium(self):
+        f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+        f.open('/')
+        self.assertTrue("TestPage" in f.page_title)
+        self.assertTrue("localhost" in f.location)
         
     def tearDown(self):
         self.port.stopListening()

@@ -103,6 +103,15 @@ class FuncBrows(object):
         else:
             raise NotImplementedError("Page Contents is not supported by this browser mode")
         
+    @property
+    def location(self):
+        """ Get the location (URL) of the current page """
+        if self.mode == 'testbrowser':
+            return self.browser.url
+        elif self.mode == 'selenium':
+            return self.browser.get_location()
+        else:
+            raise NotImplementedError("Location is not supported by this browser mode")
         
     def set_form_text_field(self, field_name, field_value):
         """ Set a text field in the prespecified form to a value """
@@ -176,9 +185,23 @@ class FuncBrows(object):
         else:
             raise NotImplemented("Submitting a form is not supported by this browser mode")
         
-    def click(self, url = None, text = None):
+    def click(self, url = None, text = None, identifier = None):
         """ Click on an element """
         
+        def _selenium_internal_link_workaround():
+            """ Workaround selenium AJAX problem"""
+            # selenium can have a problem with links that don't cause a page load
+            # this is a bit of a hack workaround
+            # not great, but will fix most instances
+            try:
+                    self.browser.wait_for_page_to_load(self.timeout_milliseconds)
+            except:
+                if self.browser.is_element_present('body'):
+                    # assume the page has loaded, but the page load event hasn't fired
+                    return
+                else:
+                    raise
+                
         if self.mode == "testbrowser":
             if url:
                 link = self.browser.getLink(url = url)
@@ -188,6 +211,8 @@ class FuncBrows(object):
                 link = self.browser.getLink(text = text)
                 link.click()
                 return
+            if identifier:
+                raise NotImplementedError("Not implemented yet")
         elif self.mode == "selenium":
             if url:
                 # selenium doesn't have the ability to natively click a link by url
@@ -197,6 +222,10 @@ class FuncBrows(object):
                 return
             if text:
                 self.browser.click('link=' + text)
-                self.browser.wait_for_page_to_load(self.timeout_milliseconds)
+                _selenium_internal_link_workaround()
+            if identifier:
+                self.browser.click('identifier=' + identifier)
+                _selenium_internal_link_workaround()
+                return
         else:
             raise NotImplemented("Click is not supported by this browser mode")

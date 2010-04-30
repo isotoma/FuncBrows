@@ -39,7 +39,7 @@ Instantiating FuncBrows is the main place where the underlying tools show throug
 
 The basic method takes a browser type, and a URL to test::
 	f = FuncBrows('testbrowser', 'http://localhost:80')
-*italics* This will instantiate a zc.testbrowser instance, with the pointing at localhost, on port 80 *italics*
+*This will instantiate a zc.testbrowser instance, with the pointing at localhost, on port 80*
 
 A selenium instance requires extra parameters (the address and port for the selenium server)::
 	f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)

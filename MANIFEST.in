@@ -1,0 +1,2 @@
+include *.html *.rst
+recursive-include FuncBrows *.rst *.html

@@ -194,19 +194,6 @@ class FuncBrows(object):
     def click(self, url = None, text = None, identifier = None, internal = False):
         """ Click on an element """
         
-        def _selenium_internal_link_workaround():
-            """ Workaround selenium AJAX problem"""
-            # selenium can have a problem with links that don't cause a page load
-            # this is a bit of a hack workaround
-            # not great, but will fix most instances
-            try:
-                    self.browser.wait_for_page_to_load(self.timeout_milliseconds)
-            except:
-                if self.browser.is_element_present('body'):
-                    # assume the page has loaded, but the page load event hasn't fired
-                    return
-                else:
-                    raise
                 
         if self.mode == "testbrowser":
             if url:

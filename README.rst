@@ -42,7 +42,7 @@ The basic method takes a browser type, and a URL to test::
 *This will instantiate a zc.testbrowser instance, with the pointing at localhost, on port 80*
 
 A selenium instance requires extra parameters (the address and port for the selenium server)::
-	f = FuncBrows('*firefox3', 'http://localhost:%s' % self.portno, host = '127.0.0.1', port = 4444)
+	f = FuncBrows('*firefox3', 'http://localhost', host = '127.0.0.1', port = 4444)
 
 Form Usage
 ~~~~~~~~~~
@@ -51,10 +51,10 @@ FuncBrows requires the name of the form to work on, before anything can be modif
 
 Set the value of a text box on a form::
 	f = FuncBrows('testbrowser', 'http://localhost:80')
-        f.open('/')
-        f.form_name = 'test-form'
-        f.set_form_text_field('q', 'test')
-        f.submit_form()
+	f.open('/')
+	f.form_name = 'test-form'
+	f.set_form_text_field('q', 'test')
+	f.submit_form()
 
 Page Content
 ~~~~~~~~~~~~

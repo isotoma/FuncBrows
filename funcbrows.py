@@ -70,9 +70,15 @@ class FuncBrows(object):
             # doesn't matter
             pass
         elif self.mode == "selenium":
-            self.browser.stop()
+            try:
+                self.browser.stop()
+            except:
+                pass
         
-                
+     
+    def shutdown(self):
+        self.__del__()
+            
     def open(self, url):
         """ Open a given url in the browser of choice """
         if self.mode == "testbrowser":
@@ -185,7 +191,7 @@ class FuncBrows(object):
         else:
             raise NotImplemented("Submitting a form is not supported by this browser mode")
         
-    def click(self, url = None, text = None, identifier = None):
+    def click(self, url = None, text = None, identifier = None, internal = False):
         """ Click on an element """
         
         def _selenium_internal_link_workaround():
@@ -218,14 +224,17 @@ class FuncBrows(object):
                 # selenium doesn't have the ability to natively click a link by url
                 # grab it using xpath instead
                 self.browser.click('xpath=//a[@href="' + url +'"]')
-                self.browser.wait_for_page_to_load(self.timeout_milliseconds)
+                if not internal:
+                    self.browser.wait_for_page_to_load(self.timeout_milliseconds)
                 return
             if text:
                 self.browser.click('link=' + text)
-                _selenium_internal_link_workaround()
+                if not internal:
+                    self.browser.wait_for_page_to_load(self.timeout_milliseconds)
             if identifier:
                 self.browser.click('identifier=' + identifier)
-                _selenium_internal_link_workaround()
+                if not internal:
+                    self.browser.wait_for_page_to_load(self.timeout_milliseconds)
                 return
         else:
             raise NotImplemented("Click is not supported by this browser mode")

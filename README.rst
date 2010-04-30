@@ -79,5 +79,7 @@ Warts
 ~~~~~
 
 Unfortunately, a completely clean abstraction isn't quite possible, so there are a few places where special care is needed.
-1. Selenium currently struggles with AJAX loaded pages as they don't fire a page load event. An attempt has been made to get round this, you can pass 'internal=True' into the click() method. This will set Selenium to not expect a page load, and to carry straight on.
-2. Forms without an id or name can trip up zc.testbrowser. A workaround for this has been implemented, but is not entirely satisfactory. If you set the form_name = '*', it will use the first form on the page.
+
+ 1. Selenium currently struggles with AJAX loaded pages as they don't fire a page load event. An attempt has been made to get round this, you can pass 'internal=True' into the click() method. This will set Selenium to not expect a page load, and to carry straight on.
+
+ 2. Forms without an id or name can trip up zc.testbrowser. A workaround for this has been implemented, but is not entirely satisfactory. If you set the form_name = '*', it will use the first form on the page.

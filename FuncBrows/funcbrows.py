@@ -191,7 +191,10 @@ class FuncBrows(object):
             raise ValueError("Form name not set")
         
         if self.mode == "testbrowser":
-            self.browser.getControl(name = field_name).controls[0].selected = value
+            try:
+                self.browser.getControl(name = field_name).controls[0].selected = value
+            except AttributeError:
+                self.browser.getControl(name = field_name).value = ['1']
         elif self.mode == "selenium":
             if value == True:
                 self.browser.check(field_name)

@@ -231,12 +231,18 @@ class FuncBrows(object):
                 return
             if identifier:
                 try:
-                    link = self.browser.getLink(id = identifier)
-                    link.click()
+                    try:
+                        link = self.browser.getLink(id = identifier)
+                        link.click()
+                    except:
+                        link = self.browser.getLink(id = identifier, index = 0)
                 except:
-                    # we need to account for names
-                    # so if the id doesn't work, try grabbing the control by name
-                    self.browser.getControl(name = identifier).click()
+                    try:
+                        # we need to account for names
+                        # so if the id doesn't work, try grabbing the control by name
+                        self.browser.getControl(name = identifier).click()
+                    except:
+                        self.browser.getControl(name = identifier, index = 0).click()
                     
                 return
         elif self.mode == "selenium":

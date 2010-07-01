@@ -208,7 +208,8 @@ class FuncBrows(object):
 
         if self.mode == "testbrowser":
             if identifier:
-                self.browser.getControl(name = identifier).click()
+                form = self._testbrowser_form(self.form_name)
+                form.getControl(name = identifier).click()
             else:
                 form = self._testbrowser_form(self.form_name)
                 form.submit()
@@ -216,9 +217,12 @@ class FuncBrows(object):
         elif self.mode == "selenium":
             if not identifier:
                 identifier = self.form_name
-            if identifier == '*':
-                # Allow use of '*' with Selenium as you would with testbrowser
-                identifier = '(//form)[1]'
+                if identifier == '*':
+                    # Allow use of '*' with Selenium as you would with testbrowser
+                    identifier = '(//form)[1]'
+            else:
+                # Make it an identifier that Selenium can understand
+                identifier = "form.button.%s" % (identifier,)
             self.browser.submit(identifier)
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:

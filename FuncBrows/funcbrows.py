@@ -216,6 +216,9 @@ class FuncBrows(object):
         elif self.mode == "selenium":
             if not identifier:
                 identifier = self.form_name
+            if identifier == '*':
+                # Allow use of '*' with Selenium as you would with testbrowser
+                identifier = '(//form)[1]'
             self.browser.submit(identifier)
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:

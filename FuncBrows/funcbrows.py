@@ -212,33 +212,37 @@ class FuncBrows(object):
                 # Try to get click the element by 'id', fallback to
                 # name, and then value
                 try:
-                    form.getControl(id = identifier).click()
+                    form.getControl(name = identifier).click()
                 except:
                     try:
-                        form.getControl(name = identifier).click()
+                        form.getControl(name = identifier, index = 0).click()
                     except:
-                        try:
-                            form.getControl(name = identifier, index = 0).click()
-                        except:
+                        # If we couldn't find it for '*', try all forms
+                        if self._form_name == '*':
                             try:
-                                form.getControl(value = identifier).click()
+                                self.browser.getControl(name = identifier).click()
                             except:
-                                form.getControl(value = identifier, index = 0).click()
+                                self.browser.getControl(name = identifier, index = 0).click()
+                        else:
+                            raise
             else:
                 form = self._testbrowser_form(self.form_name)
                 form.submit()
 
         elif self.mode == "selenium":
             if not identifier:
-                identifier = self.form_name
+                id = self.form_name
             else:
                 # Make it an identifier that Selenium can understand
-                identifier = '(%(form)s/input|button[@id="%(id)s"|@name="%(id)s"|@value="%(id)s")[1]' \
-                    % {
-                        'form': self.form_name,
-                        'id': identifier,
-                    }
-            self.browser.submit(identifier)
+                id = '(%s/input|button[@name="%s")s")[1]' % (self.form_name, identifier,)
+            try:
+                self.browser.submit(id)
+            except:
+                # If we couldn't find it for '*', try all forms
+                if self._form_name == '*' and identifier:
+                    self.browser.submit('forms.button.%s' % (id,))
+                else:
+                    raise
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:
             raise NotImplemented("Submitting a form is not supported by this browser mode")

@@ -240,7 +240,7 @@ class FuncBrows(object):
             except:
                 # If we couldn't find it for '*', try all forms
                 if self._form_name == '*' and identifier:
-                    self.browser.submit('forms.button.%s' % (id,))
+                    self.browser.submit(id)
                 else:
                     raise
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)

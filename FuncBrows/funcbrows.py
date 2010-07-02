@@ -294,7 +294,7 @@ class FuncBrows(object):
 
     def get_form_name(self):
         if self.mode == "selenium" and self._form_name == '*':
-            name = '(//form)[1]'
+            name = 'xpath=(//form)[1]'
         else:
             name = self._form_name
         return name

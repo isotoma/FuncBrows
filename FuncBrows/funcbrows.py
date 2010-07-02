@@ -293,7 +293,7 @@ class FuncBrows(object):
             raise NotImplemented("Click is not supported by this browser mode")
 
     def get_form_name(self):
-        if self.browser == 'selenium' and self._form_name == '*':
+        if self.mode == "selenium" and self._form_name == '*':
             name = '(//form)[1]'
         else:
             name = self._form_name

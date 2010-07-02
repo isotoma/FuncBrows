@@ -8,7 +8,7 @@ class FuncBrows(object):
     mode = None
 
     # data variables
-    form_name = None
+    _form_name = None
     timeout_milliseconds = 60000
 
     def _testbrowser_form(self, form_name):
@@ -209,7 +209,21 @@ class FuncBrows(object):
         if self.mode == "testbrowser":
             if identifier:
                 form = self._testbrowser_form(self.form_name)
-                form.getControl(name = identifier).click()
+                # Try to get click the element by 'id', fallback to
+                # name, and then value
+                try:
+                    form.getControl(id = identifier).click()
+                except:
+                    try:
+                        form.getControl(name = identifier).click()
+                    except:
+                        try:
+                            form.getControl(name = identifier, index = 0).click()
+                        except:
+                            try:
+                                form.getControl(value = identifier).click()
+                            except:
+                                form.getControl(value = identifier, index = 0).click()
             else:
                 form = self._testbrowser_form(self.form_name)
                 form.submit()
@@ -217,12 +231,13 @@ class FuncBrows(object):
         elif self.mode == "selenium":
             if not identifier:
                 identifier = self.form_name
-                if identifier == '*':
-                    # Allow use of '*' with Selenium as you would with testbrowser
-                    identifier = '(//form)[1]'
             else:
                 # Make it an identifier that Selenium can understand
-                identifier = "form.button.%s" % (identifier,)
+                identifier = '(%(form)s/input|button[@id="%(id)s"|@name="%(id)s"|@value="%(id)s")[1]' \
+                    % {
+                        'form': self.form_name,
+                        'id': identifier,
+                    }
             self.browser.submit(identifier)
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:
@@ -276,3 +291,15 @@ class FuncBrows(object):
                 return
         else:
             raise NotImplemented("Click is not supported by this browser mode")
+
+    def get_form_name(self):
+        if self.browser == 'selenium' and self._form_name == '*':
+            name = '(//form)[1]'
+        else:
+            name = self._form_name
+        return name
+
+    def set_form_name(self, name):
+        self._form_name = name
+
+    form_name = property(get_form_name, set_form_name)

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1.7a'
+version = '0.1.7'
 
 setup(
     name = 'FuncBrows',

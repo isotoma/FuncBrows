@@ -228,21 +228,23 @@ class FuncBrows(object):
             else:
                 form = self._testbrowser_form(self.form_name)
                 form.submit()
-
         elif self.mode == "selenium":
             if not identifier:
-                id = self.form_name
+                if self._form_name == '*':
+                    self.browser.submit("xpath=%s" % (self.form_name,))
+                else:
+                    self.browser.submit(self.form_name)
             else:
                 # Make it an identifier that Selenium can understand
-                id = '(%s/input|button[@name="%s")s")[1]' % (self.form_name, identifier,)
-            try:
-                self.browser.submit(id)
-            except:
-                # If we couldn't find it for '*', try all forms
-                if self._form_name == '*' and identifier:
-                    self.browser.submit(id)
-                else:
-                    raise
+                try:
+                    if self._form_name == '*':
+                        id = 'xpath=%s/input[@name="%s"]|button[@name="%s"]' % (self.form_name, identifier, identifier,)
+                    else:
+                        id = 'xpath=//form[@name="%s"]/input[@name="%s"]|button[@name="%s"]' % (self.form_name, identifier, identifier,)
+                    self.browser.click(id)
+                except:
+                    # If we couldn't find it for '*', try all forms
+                    self.browser.click('xpath=//input[@name="%s"]|button[@name="%s"]' % (identifier, identifier,))
             self.browser.wait_for_page_to_load(self.timeout_milliseconds)
         else:
             raise NotImplemented("Submitting a form is not supported by this browser mode")
@@ -298,7 +300,7 @@ class FuncBrows(object):
 
     def get_form_name(self):
         if self.mode == "selenium" and self._form_name == '*':
-            name = 'xpath=(//form)[1]'
+            name = '//form[1]'
         else:
             name = self._form_name
         return name

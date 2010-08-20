@@ -199,7 +199,7 @@ class FuncBrows(object):
             if value == True:
                 self.browser.check(field_name)
             else:
-                self.browser.unceck(field_name)
+                self.browser.uncheck(field_name)
         else:
             raise NotImplementedError("Setting a checkbox is not supported by this browser mode")
 
